@@ -23,7 +23,9 @@ This mixin will emit life cycle and success/fail events for an ajax request.
 * `get(url, eventName[, data])`
 * `post(url, data, eventName)`
 * `ajax(url, ajaxOptons, eventName)`
-* `redoRequest(failData)` - will try for `redoRetries` times max, default 10.
+* `retryRequest(failData)` - will try for `attr.retryRetries` times
+  max, default 10. Can also be used as an event handler for dataFail
+  events.
 
 `.get`/`.post` are both thin wrappers around `.ajax` which in turn is
 a thin wrapper around [$.ajax`](http://api.jquery.com/jQuery.ajax/).
@@ -33,12 +35,12 @@ add your own callback to the mix.
 
 #### Events
 
+##### .get/.post/.ajax events
 All events are created out of the eventName you pass in. The examples
 all use the event `Example`.
 
 The event names are based off of the suggested naming conventions in
 [Getting Started with Twitter Flight](http://amzn.to/1fUmc7o).
-
 All:
 * `dataExample` - a successful request
 * `dataExampleFail` - a failed request
@@ -53,6 +55,12 @@ GET/HEAD events:
 POST/PUT/PATCH events (any other than get/head):
 * `submitExampleStart`
 * `submitExampleEnd`
+
+##### .retryRequest events
+
+* `retryAjax` - trigger just as a request is about to be retried
+* `retryAjaxSuccess` - after a request has successfully been retried
+* `retryAjaxTooMany` - if the request has been retried too many times
 
 ## Example
 
@@ -72,6 +80,8 @@ define(function(require) {
             this.get('/some-data', 'Countries');
             this.post('/submit', {user: 'test', password: 1234}, 'UserLogin');
             this.ajax('/submit', {data: {user: 'test', password: 1234}}, 'UserLogin');
+
+            this.on('dataUserLoginFail', this.retryRequest);
         });
     }
 });

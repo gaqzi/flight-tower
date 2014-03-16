@@ -7,7 +7,10 @@ describeMixin('lib/with_ajax', function () {
       startedSubmitSpy,
       endedSubmitSpy,
       successSpy,
-      failSpy;
+      failSpy,
+      retryAjaxSpy,
+      retryAjaxSuccessSpy,
+      retryAjaxTooManySpy;
 
   var ajaxSuccess = {
     status: 200,
@@ -30,6 +33,9 @@ describeMixin('lib/with_ajax', function () {
     endedSubmitSpy = spyOnEvent(document, 'submit'+ eventName +'End');
     successSpy = spyOnEvent(document, 'data'+ eventName);
     failSpy = spyOnEvent(document, 'data'+ eventName +'Error');
+    retryAjaxSpy = spyOnEvent(document, 'retryAjax');
+    retryAjaxSuccessSpy = spyOnEvent(document, 'retryAjaxSuccess');
+    retryAjaxTooManySpy = spyOnEvent(document, 'retryAjaxTooMany');
   });
 
   it('should require an eventName for options', function() {
@@ -122,4 +128,100 @@ describeMixin('lib/with_ajax', function () {
     });
   });
 
+  describe('.retryRequest', function() {
+    var requestData = {
+      url: '/submit',
+      ajaxOptions: {method: 'post'},
+      options: eventName,
+      status: 500,
+      statusText: 'Internal server error',
+      response: null
+    };
+
+    function _retry(that, data, expectedReturn) {
+      data = data || requestData;
+      expectedReturn = expectedReturn || true;
+
+      expect(that.component.retryRequest(data)).toBe(expectedReturn);
+      var request = mostRecentAjaxRequest();
+      request.response(ajaxFail);
+
+      return request;
+    }
+
+    it('should return true when a request is being redone', function() {
+      _retry(this);
+
+      expect(failSpy.callCount).toBe(1);
+    });
+
+    it('should trigger retryAjax when retrying', function() {
+      _retry(this);
+
+      expect(retryAjaxSpy.callCount).toBe(1);
+      expect(retryAjaxSpy.mostRecentCall.data)
+        .toEqual({url: requestData.url});
+    });
+
+    it('should save how many times a request has been retried', function() {
+      _retry(this);
+
+      expect(this.component.attr.retrying[requestData.url]).toBe(1);
+    });
+
+    it('should clear how many times retried when succeeding', function() {
+      _retry(this);
+      expect(this.component.attr.retrying[requestData.url]).toBe(1);
+
+      this.component.retryRequest(requestData);
+      var request = mostRecentAjaxRequest();
+      request.response(ajaxSuccess);
+
+      expect(this.component.attr.retrying[requestData.url]).toBe(undefined);
+      expect(successSpy.callCount).toBe(1);
+      expect(failSpy.callCount).toBe(1);
+    });
+
+    it('should trigger retryAjaxSucces when succeeding', function() {
+      this.component.retryRequest(requestData);
+      var request = mostRecentAjaxRequest();
+      request.response(ajaxSuccess);
+
+      expect(retryAjaxSpy.callCount).toBe(1);
+      expect(retryAjaxSuccessSpy.callCount).toBe(1);
+      expect(retryAjaxSuccessSpy.mostRecentCall.data)
+        .toEqual({url: requestData.url});
+    });
+
+    it('should retry original event max ajaxRetries time', function() {
+      var maxRetries = this.component.attr.ajaxRetries || 10;
+
+      for(var i=0;i < maxRetries;i++) {
+        _retry(this);
+      }
+
+      expect(this.component.retryRequest(requestData)).toBe(false);
+      expect(failSpy.callCount).toBe(maxRetries);
+      expect(successSpy.callCount).toBe(0);
+    });
+
+    it('should retry original event max ajaxRetries time', function() {
+      var maxRetries = this.component.attr.ajaxRetries || 10;
+
+      for(var i=0;i < maxRetries;i++) {
+        _retry(this);
+      }
+      expect(this.component.retryRequest(requestData)).toBe(false);
+      expect(retryAjaxTooManySpy.callCount).toBe(1);
+      expect(retryAjaxTooManySpy.mostRecentCall.data)
+        .toEqual({url: requestData.url});
+    });
+
+    it('should be usable as an event handler', function() {
+      this.component.retryRequest({event: 'wehoo'}, requestData);
+      var request = mostRecentAjaxRequest();
+      request.response(ajaxFail);
+      expect(failSpy.callCount).toBe(1);
+    });
+  });
 });
