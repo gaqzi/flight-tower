@@ -90,6 +90,17 @@ describeMixin('lib/with_ajax', function () {
         response: {status : 'validation_error'}
       });
     });
+
+    it('should only allow one request at a time to an endpoint', function() {
+      this.component.ajax('/ajax', null, eventName);
+      expect(this.component.ajax('/ajax', null, eventName)).toBe(false);
+    });
+
+    it('should allow many requests to same endpoint with `many` option', function() {
+      this.component.ajax('/ajax', null, {eventName: eventName, many: true});
+      this.component.ajax('/ajax', null, {eventName: eventName, many: true});
+      expect(startedFetchSpy.callCount).toBe(2);
+    });
   });
 
   describe('.get request', function() {

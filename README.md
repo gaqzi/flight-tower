@@ -22,7 +22,7 @@ This mixin will emit life cycle and success/fail events for an ajax request.
 
 * `get(url, eventName[, data])`
 * `post(url, data, eventName)`
-* `ajax(url, ajaxOptons, eventName)`
+* `ajax(url, ajaxOptons, options|eventName)`
 * `retryRequest(failData)` - will try for `attr.retryRetries` times
   max, default 10. Can also be used as an event handler for dataFail
   events.
@@ -32,6 +32,13 @@ a thin wrapper around [$.ajax`](http://api.jquery.com/jQuery.ajax/).
 
 All methods returns the jQuery promise from $.ajax in case you want to
 add your own callback to the mix.
+
+#### `.ajax` options
+
+* `eventName` - the name that ajax will use to distinguish between
+  different requests. See events for more details.
+* `many` - whether mulitple simultaneous requests should be allowed to
+  the same URL at once. Default is false.
 
 #### Events
 
