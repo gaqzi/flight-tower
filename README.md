@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/gaqzi/flight-tower/badge.png)](https://coveralls.io/r/gaqzi/flight-tower)
 
 A collection of [Flight](https://github.com/flightjs/flight) mixins
-that aids in communicating with backend services. 
+that aids in communicating with backend services through XHR requests.
 
 ## Installation
 
@@ -46,7 +46,7 @@ add your own callback to the mix.
 All events are created out of the eventName you pass in. The examples
 all use the event `Example`.
 
-The event names are based off of the suggested naming conventions in
+The event names are inspired by the suggested naming conventions in
 [Getting Started with Twitter Flight](http://amzn.to/1fUmc7o).
 All:
 * `dataExample` - a successful request
