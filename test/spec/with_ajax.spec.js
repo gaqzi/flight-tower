@@ -74,6 +74,7 @@ describeMixin('lib/with_ajax', function () {
     it('should trigger custom fail event from eventName option', function() {
       _ajax(this, true);
 
+      expect(successSpy.callCount).toBe(0);
       expect(failSpy.callCount).toBe(1);
     });
 
