@@ -32,8 +32,10 @@
     "it",
     "mostRecentAjaxRequest",
     "jasmine",
+    "readFixtures",
     "requirejs",
     "setupComponent",
+    "spyOn",
     "spyOnEvent"
   ]
 }
