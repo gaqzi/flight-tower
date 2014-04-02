@@ -1,6 +1,6 @@
 {
   "name": "flight-tower",
-  "version": "0.9.0",
+  "version": "1.0.0rc1",
   "dependencies": {
     "flight": "~1.1.0"
   },
