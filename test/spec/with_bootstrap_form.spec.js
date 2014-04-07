@@ -18,7 +18,9 @@ describeMixin('lib/with_bootstrap_form', function () {
     beforeEach(function() {
       button = false;
       $.fn.button = function(arg) {
-        button = arg;
+        if(this.size() > 0) {
+          button = arg;
+        }
       };
     });
 

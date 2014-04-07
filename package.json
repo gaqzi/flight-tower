@@ -1,6 +1,6 @@
 {
   "name": "flight-tower",
-  "version": "1.0.0rc1",
+  "version": "1.0.0rc2",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-bump": "latest",
